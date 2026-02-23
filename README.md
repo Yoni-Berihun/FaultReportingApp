@@ -54,6 +54,9 @@ Contributions welcome! Follow these steps for junior devs:
 
 Best practices: Keep branches focused (one feature/fix per branch), pull main updates (`git pull origin main`), resolve conflicts early.
 
+## Project Charter
+See the full project charter [here](https://docs.google.com/document/d/1S4Wbum4_K9NxF8hpsal1sdO3T-YUHf0vAwNCXHrLiL8/edit?usp=sharing).
+
 ## License
 MIT - see [LICENSE](LICENSE).
 
