@@ -61,4 +61,4 @@ See the full project charter [here](https://docs.google.com/document/d/1S4Wbum4_
 MIT - see [LICENSE](LICENSE).
 
 ## Acknowledgments
-Student team at HU, advised by Yonatan.
+Student team at PCIC.
