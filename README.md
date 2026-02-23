@@ -1,7 +1,7 @@
 # Fault Reporting Mobile App
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue?logo=flutter)](https://flutter.dev)
-
+[![Firebase](https://img.shields.io/badge/Firebase-Enabled-orange?logo=firebase)](https://firebase.google.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
@@ -41,10 +41,21 @@ Submit fault with minimal details → Stores data → Sends SMS with map link.
 `flutter test`; Cyber review in Week 7.
 
 ## Contributing
-Fork, branch, PR welcome.
+Contributions welcome! Follow these steps for junior devs:
+
+1. **Fork the Repo**: Go to the GitHub page and click "Fork" to create your copy.
+2. **Clone Locally**: `git clone https://github.com/YOUR_USERNAME/FaultReportingApp.git && cd FaultReportingApp`
+3. **Create a Branch**: Use a descriptive name, e.g., `git checkout -b feature/add-login-screen` (for new features) or `bugfix/fix-sms-bug` (for fixes).
+4. **Work on Changes**: Make edits in your branch. Test locally with `flutter run`.
+5. **Commit Changes**: Stage files (`git add .`), commit with a clear message (`git commit -m "Added login screen with auth"`).
+6. **Push to Fork**: `git push origin feature/add-login-screen`
+7. **Create Pull Request (PR)**: On GitHub, go to your fork, click "Compare & pull request". Describe changes, reference issues if any.
+8. **Review & Merge**: Wait for review; address feedback by pushing updates to your branch.
+
+Best practices: Keep branches focused (one feature/fix per branch), pull main updates (`git pull origin main`), resolve conflicts early.
 
 ## License
 MIT - see [LICENSE](LICENSE).
 
 ## Acknowledgments
-Student team at HU PCIC.
+Student team at HU, advised by Yonatan.
