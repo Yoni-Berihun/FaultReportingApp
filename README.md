@@ -1,7 +1,7 @@
 # Fault Reporting Mobile App
 
 [![Flutter](https://img.shields.io/badge/Flutter-3.0+-blue?logo=flutter)](https://flutter.dev)
-[![Firebase](https://img.shields.io/badge/Firebase-Enabled-orange?logo=firebase)](https://firebase.google.com)
+[![Supabase](https://img.shields.io/badge/Supabase-Enabled-3FCF8E?logo=supabase)](https://supabase.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Overview
@@ -19,15 +19,14 @@ Cross-platform app for Hawassa University's IoT campus to report faults (e.g., l
 ## Tech Stack
 
 - Flutter (Dart)
-- Firebase (Firestore, Storage, Auth)
-- Twilio (SMS)
-- Google Maps API + Geolocator
+- Supabase (Database, Storage, Auth)
+- OpenStreetMap + Geolocator
 
 ## Setup
 
 1. Clone: `git clone https://github.com/FaultReportingApp.git && cd FaultReportingApp`
 2. Dependencies: `flutter pub get`
-3. Configure: Add Firebase files, Twilio creds, Google Maps key.
+3. Configure: Add Supabase URL + anon key in `lib/main.dart`.
 4. Run: `flutter run`
 
 ## Deployment

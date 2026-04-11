@@ -23,18 +23,9 @@ class _MapPreviewScreenState extends State<MapPreviewScreen> {
     try {
       final trackingId = await FaultService.submitReport(widget.report);
       if (mounted) context.go('/confirmation', extra: trackingId);
-    } on FirebaseSetupException catch (e) {
-      if (mounted) {
-        setState(() => _isSubmitting = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(e.message),
-            backgroundColor: Colors.redAccent,
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('Submit error: $e');
+      debugPrint('Submit stackTrace: $stackTrace');
       if (mounted) {
         setState(() => _isSubmitting = false);
         ScaffoldMessenger.of(context).showSnackBar(
