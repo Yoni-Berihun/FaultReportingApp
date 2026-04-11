@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'screens/home_screen.dart';
 import 'screens/map_preview_screen.dart';
@@ -12,6 +13,10 @@ late final String _initialRoute;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://hmfmeayfrgniwkiraybh.supabase.co',
+    anonKey: 'sb_publishable_bVdZvmSmoCcaiI974DocWg_NvN0sFwm',
+  );
   final shouldShowOnboarding = await PermissionService.shouldShowOnboarding();
   _initialRoute = shouldShowOnboarding ? '/permissions' : '/';
   runApp(const FaultReportingApp());
