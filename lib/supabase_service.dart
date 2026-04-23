@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'package:fault_reporting_app/core/app_config.dart';
+
 class SupabaseService {
   // Get the Supabase client instance
   final SupabaseClient _client = Supabase.instance.client;
@@ -34,27 +36,78 @@ class SupabaseService {
 
   // --- STORAGE ---
 
-  // Upload a file to Supabase Storage
-  // bucketName: name of the bucket (e.g., 'photos')
-  // filePath: path inside the bucket (e.g., 'user123/image.jpg')
-  // fileBytes: the bytes of the file to upload
-  Future<String> uploadFile(
-      String bucketName, String filePath, Uint8List fileBytes) async {
+  /// Uploads bytes to storage and returns the **object path** inside the
+  /// bucket (private access; use [createSignedUrlForObject] to view).
+  Future<String> uploadPrivateObject(
+      String bucketName, String objectPath, Uint8List fileBytes) async {
     try {
       await _client.storage.from(bucketName).uploadBinary(
-            filePath,
+            objectPath,
             fileBytes,
             fileOptions: const FileOptions(upsert: false),
           );
     } on StorageException catch (e) {
       throw Exception(
-        'Storage upload failed (bucket: $bucketName, path: $filePath, status: ${e.statusCode}, error: ${e.error}): ${e.message}',
+        'Storage upload failed (bucket: $bucketName, path: $objectPath, status: ${e.statusCode}, error: ${e.error}): ${e.message}',
       );
     }
+    return objectPath;
+  }
 
-    // Get the public URL
-    final publicUrl = _client.storage.from(bucketName).getPublicUrl(filePath);
-    return publicUrl;
+  Future<String> createSignedUrlForObject(
+      String bucketName, String objectPath) async {
+    final seconds = AppConfig.instance.fixerStorageSignedUrlSeconds;
+    return _client.storage
+        .from(bucketName)
+        .createSignedUrl(objectPath, seconds);
+  }
+
+  Future<List<Map<String, dynamic>>> fetchReports(
+      {DateTime? sinceCreatedAt, int limit = 2000}) async {
+    var query = _client.from('reports').select();
+    if (sinceCreatedAt != null) {
+      query = query.gte('created_at', sinceCreatedAt.toUtc().toIso8601String());
+    }
+    final res = await query.order('created_at', ascending: false);
+    final list = List<Map<String, dynamic>>.from(res);
+    if (list.length > limit) {
+      return list.sublist(0, limit);
+    }
+    return list;
+  }
+
+  Future<Map<String, dynamic>?> getReportById(int id) async {
+    final res = await _client.from('reports').select().eq('id', id) as List<dynamic>;
+    final list = res;
+    if (list.isEmpty) {
+      return null;
+    }
+    return Map<String, dynamic>.from(list.first as Map);
+  }
+
+  Future<void> markReportSeen(int id) async {
+    final now = DateTime.now().toUtc().toIso8601String();
+    await _client.from('reports').update({
+      'status': 'seen',
+      'seen_at': now,
+      'updated_at': now,
+    }).eq('id', id);
+  }
+
+  /// Auto-resolve reports that have been in `seen` for at least [days].
+  Future<void> applyServerSideAutoResolve({int days = 3}) async {
+    final threshold = DateTime.now().toUtc().subtract(Duration(days: days));
+    final t = threshold.toIso8601String();
+    final now = DateTime.now().toUtc().toIso8601String();
+    await _client
+        .from('reports')
+        .update({
+          'status': 'resolved',
+          'resolved_at': now,
+          'updated_at': now,
+        })
+        .eq('status', 'seen')
+        .lt('seen_at', t);
   }
 
   // --- DATABASE (Firestore equivalent) ---

@@ -1,24 +1,47 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:sqlite3_flutter_libs/sqlite3_flutter_libs.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'core/app_config.dart';
+import 'models/fault_report.dart';
+import 'screens/confirmation_screen.dart';
+import 'screens/fixer/fixer_mode_gate_screen.dart';
+import 'screens/fixer/fixer_report_detail_screen.dart';
+import 'screens/fixer/fixer_reports_list_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/map_preview_screen.dart';
-import 'screens/confirmation_screen.dart';
 import 'screens/permissions_onboarding_screen.dart';
-import 'models/fault_report.dart';
+import 'services/background_work_manager.dart';
+import 'services/fixer_bootstrap.dart';
+import 'services/local_notification_service.dart';
 import 'services/permission_service.dart';
+import 'widgets/app_resume_handler.dart';
 
-late final String _initialRoute;
+// Default for tests / when `main()` is not executed (e.g. widget_test).
+String _initialRoute = '/';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  if (Platform.isAndroid) {
+    try {
+      await applyWorkaroundToOpenSqlite3OnOldAndroidVersions();
+    } catch (_) {}
+  }
+
+  const config = AppConfig.instance;
   await Supabase.initialize(
-    url: 'https://hmfmeayfrgniwkiraybh.supabase.co',
-    anonKey: 'sb_publishable_bVdZvmSmoCcaiI974DocWg_NvN0sFwm',
+    url: config.supabaseUrl,
+    anonKey: config.supabaseAnonKey,
   );
+  await LocalNotificationService.instance.init();
   final shouldShowOnboarding = await PermissionService.shouldShowOnboarding();
   _initialRoute = shouldShowOnboarding ? '/permissions' : '/';
+  await FixerBootstrap.syncIfEnabled();
+  await BackgroundWorkManager.registerIfFixer();
   runApp(const FaultReportingApp());
 }
 
@@ -66,6 +89,12 @@ class FaultReportingApp extends StatelessWidget {
         ),
       ),
       routerConfig: _router,
+      builder: (context, child) {
+        if (kIsWeb) {
+          return child ?? const SizedBox.shrink();
+        }
+        return AppResumeHandler(child: child ?? const SizedBox.shrink());
+      },
     );
   }
 }
@@ -87,6 +116,21 @@ final GoRouter _router = GoRouter(
       path: '/confirmation',
       builder: (context, state) =>
           ConfirmationScreen(trackingId: state.extra as String? ?? ''),
+    ),
+    GoRoute(
+      path: '/fixer/gate',
+      builder: (context, state) => const FixerModeGateScreen(),
+    ),
+    GoRoute(
+      path: '/fixer/reports',
+      builder: (context, state) => const FixerReportsListScreen(),
+    ),
+    GoRoute(
+      path: '/fixer/reports/:id',
+      builder: (context, state) {
+        final id = int.parse(state.pathParameters['id']!);
+        return FixerReportDetailScreen(serverId: id);
+      },
     ),
   ],
 );

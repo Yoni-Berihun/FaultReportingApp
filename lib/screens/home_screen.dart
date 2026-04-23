@@ -26,6 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isLoadingGPS = false;
   double? _latitude;
   double? _longitude;
+  int _fixerOpenTapCount = 0;
 
   static const _primaryColor = Color(0xFF0085D5);
 
@@ -243,20 +244,29 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       child: Row(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: const BoxDecoration(
-              color: _primaryColor,
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: const Text(
-              'H',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+          GestureDetector(
+            onTap: () {
+              _fixerOpenTapCount += 1;
+              if (_fixerOpenTapCount >= 7) {
+                _fixerOpenTapCount = 0;
+                context.push('/fixer/gate');
+              }
+            },
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: _primaryColor,
+                shape: BoxShape.circle,
+              ),
+              alignment: Alignment.center,
+              child: const Text(
+                'H',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
           ),
